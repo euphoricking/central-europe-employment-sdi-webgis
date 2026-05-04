@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Professional SDI WebGIS application for comparative employment analysis in Austria and neighbouring Central European countries." />
+  <title>Central Europe Employment SDI WebGIS</title>
+  <link rel="preconnect" href="https://unpkg.com" />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="loading-screen" class="loading-screen" aria-live="polite">
+    <div class="loader" aria-hidden="true"></div>
+    <p>Loading SDI WebGIS application...</p>
+  </div>
+
+  <header class="hero">
+    <nav class="top-nav" aria-label="Project links">
+      <div class="brand-mini">Employment SDI WebGIS</div>
+      <div class="nav-links">
+        <a href="docs/metadata.md" target="_blank" rel="noopener">Metadata</a>
+        <a href="docs/application_overview.md" target="_blank" rel="noopener">Documentation</a>
+        <button id="print-btn" class="nav-button" type="button">Print</button>
+      </div>
+    </nav>
+
+    <div class="hero-grid">
+      <div class="hero-text">
+        <span class="eyebrow">Spatial Data Infrastructure · WebGIS · Advanced Cartography</span>
+        <h1>Central Europe Employment SDI WebGIS</h1>
+        <p>
+          A professional WebGIS application for comparing employment rates in Austria and neighbouring countries using GeoJSON boundaries,
+          statistical attributes, metadata documentation, choropleth mapping, analytical dashboards and exportable tabular data.
+        </p>
+      </div>
+      <div class="hero-stats" aria-label="Application capability summary">
+        <div><strong>8</strong><span>countries</span></div>
+        <div><strong>3</strong><span>indicators</span></div>
+        <div><strong>SDI</strong><span>metadata-ready</span></div>
+      </div>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <aside class="control-panel" aria-label="SDI controls">
+      <section class="card intro-card">
+        <h2>SDI Control Centre</h2>
+        <p>
+          Query the employment data layer, change map classification, compare Austria with another country, and inspect results through map, charts and table views.
+        </p>
+      </section>
+
+      <section class="card form-card">
+        <div class="section-title">
+          <h3>Data query</h3>
+          <span>Layer filters</span>
+        </div>
+
+        <label for="year-select">Reporting year</label>
+        <select id="year-select"></select>
+
+        <label for="indicator-select">Mapped indicator</label>
+        <select id="indicator-select">
+          <option value="Total">Total employment rate</option>
+          <option value="Male">Male employment rate</option>
+          <option value="Female">Female employment rate</option>
+          <option value="Gap">Gender employment gap</option>
+        </select>
+
+        <label for="comparison-select">Compare Austria with</label>
+        <select id="comparison-select"></select>
+
+        <label for="country-search">Country search</label>
+        <input id="country-search" type="search" placeholder="Search country name..." />
+      </section>
+
+      <section class="card form-card">
+        <div class="section-title">
+          <h3>Cartography</h3>
+          <span>Map styling</span>
+        </div>
+
+        <label for="classification-select">Classification method</label>
+        <select id="classification-select">
+          <option value="quantile">Quantile classes</option>
+          <option value="equal">Equal interval classes</option>
+        </select>
+
+        <label for="scheme-select">Colour scheme</label>
+        <select id="scheme-select">
+          <option value="teal">Sequential teal</option>
+          <option value="blue">Sequential blue</option>
+          <option value="purple">Sequential purple</option>
+          <option value="gap">Diverging for gap</option>
+        </select>
+
+        <div class="toggles">
+          <label><input type="checkbox" id="labels-toggle" checked /> Country labels</label>
+          <label><input type="checkbox" id="highlight-toggle" checked /> Highlight comparison pair</label>
+          <label><input type="checkbox" id="table-toggle" checked /> Attribute table</label>
+        </div>
+
+        <div class="button-grid">
+          <button id="fit-map-btn" class="btn" type="button">Fit map</button>
+          <button id="reset-btn" class="btn ghost" type="button">Reset</button>
+          <button id="export-btn" class="btn accent" type="button">Export CSV</button>
+        </div>
+      </section>
+
+      <section class="card sdi-card">
+        <div class="section-title">
+          <h3>SDI components</h3>
+          <span>Portfolio evidence</span>
+        </div>
+        <ul>
+          <li><strong>Spatial layer:</strong> country boundary GeoJSON.</li>
+          <li><strong>Attribute layer:</strong> employment statistics JSON.</li>
+          <li><strong>Catalogue:</strong> project metadata and documentation.</li>
+          <li><strong>Services concept:</strong> browser-based map publication.</li>
+          <li><strong>Interoperability:</strong> open web formats and GitHub Pages deployment.</li>
+        </ul>
+      </section>
+    </aside>
+
+    <section class="map-column" aria-label="Interactive employment map">
+      <div class="map-card">
+        <div class="map-header">
+          <div>
+            <h2 id="map-title">Employment choropleth</h2>
+            <p id="map-subtitle">Select a year and indicator to explore the layer.</p>
+          </div>
+          <div class="map-actions">
+            <button id="locate-btn" class="small-btn" type="button">Locate</button>
+            <button id="clear-selection-btn" class="small-btn" type="button">Clear selection</button>
+          </div>
+        </div>
+        <div id="map" role="application" aria-label="Leaflet choropleth map"></div>
+        <div id="legend" class="legend" aria-label="Map legend"></div>
+      </div>
+
+      <div class="insight-strip">
+        <div class="mini-card">
+          <span>Selected country</span>
+          <strong id="selected-country">None</strong>
+        </div>
+        <div class="mini-card">
+          <span>Selected value</span>
+          <strong id="selected-value">—</strong>
+        </div>
+        <div class="mini-card wide">
+          <span>Automated interpretation</span>
+          <p id="insight-text">Use the controls or click a country on the map to generate an interpretation.</p>
+        </div>
+      </div>
+    </section>
+
+    <aside class="analytics-panel" aria-label="Employment analytics">
+      <section class="card kpi-card-wrap">
+        <div class="section-title">
+          <h3>Indicator summary</h3>
+          <span id="summary-year">—</span>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi-card"><span>Austria</span><strong id="kpi-austria">—</strong><small id="kpi-austria-note">mapped indicator</small></div>
+          <div class="kpi-card"><span>Comparison</span><strong id="kpi-compare">—</strong><small id="kpi-compare-note">selected country</small></div>
+          <div class="kpi-card"><span>Difference</span><strong id="kpi-diff">—</strong><small>comparison − Austria</small></div>
+          <div class="kpi-card"><span>Regional average</span><strong id="kpi-average">—</strong><small>mapped countries</small></div>
+        </div>
+      </section>
+
+      <section class="card chart-card">
+        <div class="section-title"><h3>Austria vs comparison</h3><span>sex-specific rates</span></div>
+        <div class="chart-box"><canvas id="comparison-chart"></canvas></div>
+      </section>
+
+      <section class="card chart-card">
+        <div class="section-title"><h3>Employment trend</h3><span>total rate over time</span></div>
+        <div class="chart-box"><canvas id="trend-chart"></canvas></div>
+      </section>
+    </aside>
+  </main>
+
+  <section class="lower-dashboard">
+    <article class="card chart-card ranking-card">
+      <div class="section-title">
+        <div>
+          <h2>Country ranking</h2>
+          <p>Countries are ranked by the selected indicator for the selected year.</p>
+        </div>
+      </div>
+      <div class="chart-box large"><canvas id="ranking-chart"></canvas></div>
+    </article>
+
+    <article class="card table-card" id="attribute-table-card">
+      <div class="section-title">
+        <div>
+          <h2>Attribute table</h2>
+          <p>Filtered statistical records currently used by the WebGIS application.</p>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table id="attribute-table">
+          <thead></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </article>
+  </section>
+
+  <footer class="footer">
+    <p><strong>Portfolio project:</strong> Spatial Data Infrastructure · MSc Applied Geoinformatics · WebGIS deployment with GitHub Pages.</p>
+    <p><strong>Author:</strong> Ekata Leo Oni · Built with Leaflet, Chart.js, HTML, CSS, JavaScript, GeoJSON and JSON.</p>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
